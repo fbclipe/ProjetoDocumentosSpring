@@ -32,18 +32,19 @@ public class DocumentsService {
     }
 
     public DocumentResponse createDocument(CreateDocumentModel documentmodel) {
-       Documents documents = new Documents();
-        String path = "C:\\Users\\carva\\OneDrive\\Área de Trabalho\\DESAFIO EXTRAIDADOS\\challenge";
-        documents.setPath(path);
-        LocalDate date = LocalDate.now();
-        documents.setDate(date);
-        String classification = documentmodel.getClassification();
-        documents.setClassification(classification);
-        String content = "Conteudo extraido do documento";
-        documents.setContent(content);
-        Documents savedDocument = documentRepository.save(documents);
-        return new DocumentResponse(savedDocument);
-        //return ResponseEntity.ok(savedDocument);
+        Documents documents = new Documents();
+         String path = "C:\\Users\\carva\\OneDrive\\Área de Trabalho\\DESAFIO EXTRAIDADOS\\challenge";
+         documents.setPath(path);
+         LocalDate date = LocalDate.now();
+         documents.setDate(date);
+         String classification = documentmodel.getClassification();
+         documents.setClassification(classification);
+         String content = "Conteudo extraido do documento";
+         documents.setContent(content);
+         String extraction = "Extração realizada";
+         documents.setExtraction(extraction);
+         Documents savedDocument = documentRepository.save(documents);
+         return new DocumentResponse(savedDocument);
     }
 
     public DocumentResponse updateDocument(Long id, Documents document) {

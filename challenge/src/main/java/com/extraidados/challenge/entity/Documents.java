@@ -28,6 +28,8 @@ public class Documents {
     private String content;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
+    @Column(nullable = false)
+    private String extraction;
 
     public Long getId() {
         return id;
@@ -70,6 +72,15 @@ public class Documents {
     public void setDate(LocalDate date) {
         this.date = date;
     }
+
+    public String getExtraction() {
+        return extraction;
+    }
+
+    public void setExtraction(String extraction) {
+        this.extraction = extraction;
+    }
+
     @Override
     public String toString() {
         return "Documents [id=" + id + ", classification=" + classification + ", path="

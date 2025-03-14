@@ -1,11 +1,12 @@
 package com.extraidados.challenge.controller;
 
 import com.extraidados.challenge.entity.Documents;
+import com.extraidados.challenge.model.CreateDocumentModel;
+import com.extraidados.challenge.response.DocumentResponse;
 import com.extraidados.challenge.service.DocumentsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/documents")
@@ -17,6 +18,8 @@ public class DocumentController {
         this.documentsService = documentsService;
     }
 
+   
+
     @GetMapping
     public List<Documents> listAllDocuments() {
         return documentsService.listAll();
@@ -25,6 +28,11 @@ public class DocumentController {
     @GetMapping("/id/{document_id}")
     public Documents getDocumentById(@PathVariable ("document_id") Long document_id) {
             return documentsService.findById(document_id); 
+    }
+
+    @PostMapping("/create")
+    public DocumentResponse createDocument(@RequestBody CreateDocumentModel documentModel) {
+        return documentsService.createDocument(documentModel);
     }
 
     @DeleteMapping("/id/{document_id}")
