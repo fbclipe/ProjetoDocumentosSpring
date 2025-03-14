@@ -28,7 +28,6 @@ public class DocumentsService {
             throw new MessageException("document not found");
         }
         return document.get();
-        
     }
 
     public DocumentResponse createDocument(CreateDocumentModel documentmodel) {
@@ -56,7 +55,6 @@ public class DocumentsService {
         }
 
         Documents existingDocument = optionalDocument.get();
-        
 
         Documents updatedDocument = documentRepository.save(existingDocument);
         //return ResponseEntity.ok(updatedDocument);

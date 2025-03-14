@@ -21,11 +21,11 @@ public class AuthTokenService {
        // this.passwordEncoder = passwordEncoder;
     }
 
-    public String generateToken(User user) {
-        String token = UUID.randomUUID().toString() + "-" + user.getId();
-        user.setAuthToken(token);
-        user.setTokenExpiration(LocalDateTime.now().plusSeconds(10)); 
-        userRepository.save(user);
+    public String generateToken(Long userid) {
+        String time = LocalDateTime.now().plusMinutes(5).toString();
+        String token = UUID.randomUUID().toString() + "-" + userid + "-" + time;
+           // token2.setTokenExpiration(LocalDateTime.now().plusMinutes(5)); 
+       // userRepository.save(user);
         return token;
     }
 
@@ -34,21 +34,30 @@ public class AuthTokenService {
         return user.isPresent() && user.get().getTokenExpiration().isAfter(LocalDateTime.now());
     }
 
-    public Optional<User> getUserByToken(String token) {
-        return userRepository.findByAuthToken(token);
+    public Optional<User> getUserbyUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
     public LoginResponse login(String username, String password) {
         Optional<User> userOpt = userRepository.findByUsername(username);
 
-        if (userOpt.isEmpty()) {
-            throw new MessageException("User not found.");
+        if (!userOpt.isPresent()) {
+            throw new MessageException("Username or password invalid");
             //return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User or password invalid");
+        }else if (userOpt.get().getPassword().equals(password)) {
+            userOpt.get().getAuthToken();
+            //userOpt authToken = "lalalaa";
+            String newtoken = generateToken(userOpt.get().getId());
+            userOpt.get().setAuthToken(newtoken);
+            userRepository.save(userOpt.get());
+            return login(username, password);
         }
-
-        return new LoginResponse(userOpt.get().getAuthToken());
+        throw new MessageException("User or password invalid.");
+        //return new LoginResponse(userOpt.get().getAuthToken());
         //return ResponseEntity.ok(token);
     }
+
+
 
     public LoginResponse logout(String token) {
         Optional<User> userOpt = userRepository.findByAuthToken(token);

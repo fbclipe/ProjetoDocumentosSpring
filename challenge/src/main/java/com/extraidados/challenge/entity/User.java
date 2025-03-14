@@ -15,7 +15,6 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
     @Column(nullable = false, unique = true)
     private String username;
     @Column(nullable = false)
@@ -31,7 +30,7 @@ public class User {
     }
     public void setId(Long id) {
         this.id = id;
-    }
+    }//email
 
     public String getUsername() {
         return username;
