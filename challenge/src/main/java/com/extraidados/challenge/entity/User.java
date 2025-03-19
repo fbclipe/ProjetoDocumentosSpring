@@ -72,8 +72,12 @@ public class User {
         this.id = id;
         this.username = username;
         this.password = password;
-        this.role = role;
+        this.role = role; //endpoint p criar admin e um p criar usuario
         this.authToken = authToken;
         this.tokenExpiration = tokenExpiration;
+    }
+
+    public User() {
+
     }
 }

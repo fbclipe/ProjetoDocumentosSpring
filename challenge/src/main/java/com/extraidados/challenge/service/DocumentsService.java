@@ -14,15 +14,24 @@ import com.extraidados.challenge.response.DocumentResponse;
 
 @Service
 public class DocumentsService {
-
+    
     @Autowired
     private DocumentRepository documentRepository;
+    private AuthTokenService authTokenService;
 
-    public List<Documents> listAll() {
+    private void validateToken(String token) {
+        if (!authTokenService.isTokenValid(token)) {
+            throw new MessageException("token invalid or expired");
+        }
+    }
+
+    public List<Documents> listAll(String token) {
+        validateToken(token);
         return documentRepository.findAll();
     }
 
-    public Documents findById(Long id) {
+    public Documents findById(Long id, String token) {
+        validateToken(token);
         Optional<Documents> document = documentRepository.findById(id);
         if(!document.isPresent()){
             throw new MessageException("document not found");
@@ -30,7 +39,8 @@ public class DocumentsService {
         return document.get();
     }
 
-    public DocumentResponse createDocument(CreateDocumentModel documentmodel) {
+    public DocumentResponse createDocument(CreateDocumentModel documentmodel, String token) {
+        validateToken(token);
         Documents documents = new Documents();
          String path = "C:\\Users\\carva\\OneDrive\\Área de Trabalho\\DESAFIO EXTRAIDADOS\\challenge";
          documents.setPath(path);
@@ -46,22 +56,24 @@ public class DocumentsService {
          return new DocumentResponse(savedDocument);
     }
 
-    public DocumentResponse updateDocument(Long id, Documents document) {
-        Optional<Documents> optionalDocument = documentRepository.findById(id);
-
-        if (optionalDocument.isEmpty()) {
-           // return ResponseEntity.notFound().build();
-           throw new MessageException("Document not found");
+    public Documents updateContent(Long id, String newContent, String token) {
+        validateToken(token);
+        try {
+            Optional<Documents> optionalDocument = documentRepository.findById(id);
+            if (!optionalDocument.isPresent()) {
+                throw new RuntimeException("Erro: Documento não encontrado");
+            }
+            
+            Documents document = optionalDocument.get();
+            document.setContent(newContent);
+            return documentRepository.save(document);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao atualizar o documento", e);
         }
-
-        Documents existingDocument = optionalDocument.get();
-
-        Documents updatedDocument = documentRepository.save(existingDocument);
-        //return ResponseEntity.ok(updatedDocument);
-                return new DocumentResponse(updatedDocument);
     }
 
-    public String deleteDocument(Long id) {
+    public String deleteDocument(Long id, String token) {
+        validateToken(token);
         Optional<Documents> optionalDocument = documentRepository.findById(id);
 
         if (optionalDocument.isEmpty()) {

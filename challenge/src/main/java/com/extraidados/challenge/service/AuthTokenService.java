@@ -2,24 +2,29 @@ package com.extraidados.challenge.service;
 
 import com.extraidados.challenge.entity.User;
 import com.extraidados.challenge.exception.MessageException;
+import com.extraidados.challenge.model.LoginDto;
+import com.extraidados.challenge.model.RegisterDto;
 import com.extraidados.challenge.repository.UserRepository;
 import com.extraidados.challenge.response.LoginResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-@Service
+@Service //registeruser
 public class AuthTokenService {
-
-    private final UserRepository userRepository;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserRepository userRepository; //auth repository
     //private final PasswordEncoder passwordEncoder;
 
-   public AuthTokenService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-       // this.passwordEncoder = passwordEncoder;
-    }
+
+   //public AuthTokenService(User/this.passwordEncoder = passwordEncoder;
+   
 
     public String generateToken(Long userid) {
         String time = LocalDateTime.now().plusMinutes(5).toString();
@@ -38,19 +43,18 @@ public class AuthTokenService {
         return userRepository.findByUsername(username);
     }
 
-    public LoginResponse login(String username, String password) {
-        Optional<User> userOpt = userRepository.findByUsername(username);
+    public LoginResponse login(LoginDto loginDto) {
+        Optional<User> userOpt = userRepository.findByUsername(loginDto.getUsername());
 
         if (!userOpt.isPresent()) {
             throw new MessageException("Username or password invalid");
             //return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User or password invalid");
-        }else if (userOpt.get().getPassword().equals(password)) {
+        }else if (userOpt.get().getPassword().equals(loginDto.getPassword())) {
             userOpt.get().getAuthToken();
-            //userOpt authToken = "lalalaa";
             String newtoken = generateToken(userOpt.get().getId());
             userOpt.get().setAuthToken(newtoken);
             userRepository.save(userOpt.get());
-            return login(username, password);
+            return new LoginResponse(newtoken);
         }
         throw new MessageException("User or password invalid.");
         //return new LoginResponse(userOpt.get().getAuthToken());
@@ -66,6 +70,7 @@ public class AuthTokenService {
             throw new MessageException("User not found.");
             //return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expired or invalid");
         }
+        
 
         User user = userOpt.get();
         user.setAuthToken(null);
@@ -90,6 +95,11 @@ public class AuthTokenService {
         return new LoginResponse(token);
 
         //return ResponseEntity.ok("Sucessful login.");
+    }
+
+    public User registerUser(RegisterDto registerDto) {
+        User user = userService.createUserAdmin(registerDto);
+        return user;
     }
 }
 
