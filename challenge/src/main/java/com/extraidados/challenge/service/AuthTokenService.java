@@ -24,21 +24,80 @@ public class AuthTokenService {
 
 
    //public AuthTokenService(User/this.passwordEncoder = passwordEncoder;
-   
+
+    public String extractUUIDToken(String token) {
+        String[] uuidtoken = token.split("-");
+        token = uuidtoken[0] +"-"+ uuidtoken[1] +"-"+ uuidtoken[2] +"-"+ uuidtoken[3] +"-"+ uuidtoken[4];
+        return token;
+     }
+   //extrai o id do token e devovle //extrai a data de expiração e valida devolve um bolean;
+   public Long extractIdToken(String token) { //parsear p long
+        String[] authtoken = token.split("-");
+        token = authtoken[5];
+        return Long.parseLong(token); 
+   }
+
+   public Boolean tokenExpired(String token){
+        LocalDateTime time = LocalDateTime.now();
+        String[] authtoken = token.split("-");
+        //int variavel = Integer.parseInt(variavel.substring(valor1 , valor2));
+
+        int anoexpiracao = Integer.parseInt(authtoken[6]);
+        int mesexpiracao = Integer.parseInt(authtoken[7]);
+        int diaexpiracao = Integer.parseInt(authtoken[8].substring(0, 2)); 
+        int horaexpiracao = Integer.parseInt(authtoken[8].substring(3, 5));
+        int minutoexpiracao = Integer.parseInt(authtoken[8].substring(6, 8)); 
+        int segundoexpiracao = Integer.parseInt(authtoken[8].substring(9, 11)); 
+        int milesimosexpiracao = Integer.parseInt(authtoken[8].substring(12, 21));
+
+        LocalDateTime expirationtime = LocalDateTime.of(anoexpiracao, mesexpiracao, diaexpiracao, horaexpiracao, minutoexpiracao, segundoexpiracao, milesimosexpiracao);
+        //System.out.println("token" +expirationtime);
+
+        //System.out.println("time "+ time);
+        //System.out.println("cade mostra aqui" +time.isBefore(expirationtime));
+        //if(time.isBefore(expirationtime)){
+            //return true;
+        //}
+        return time.isBefore(expirationtime);
+   }
 
     public String generateToken(Long userid) {
-        String time = LocalDateTime.now().plusMinutes(5).toString();
-        String token = UUID.randomUUID().toString() + "-" + userid + "-" + time;
+        String expiration = LocalDateTime.now().plusMinutes(5).toString();
+        String token = UUID.randomUUID().toString() + "-" + userid + "-" + expiration;
            // token2.setTokenExpiration(LocalDateTime.now().plusMinutes(5)); 
        // userRepository.save(user);
         return token;
     }
-
+    //find by id CHECK
+    //validar o uuid token
+    //usergettoken extrair o uuid e validar se ta batendo os dois
     public boolean isTokenValid(String token) {
-        Optional<User> user = userRepository.findByAuthToken(token);
-        return user.isPresent() && user.get().getTokenExpiration().isAfter(LocalDateTime.now());
-    }
+            boolean verification = tokenExpired(token);
+            if(!verification) {
+                //nao quebra aqui
+                return false;
+            }
 
+            Long tokenid = extractIdToken(token);
+
+            User user = getUserById(tokenid).get();
+            if(!getUserById(tokenid).isPresent()){
+                //nao quebra aqui
+                return false;
+            }
+
+            String extractedTokenUUID = extractUUIDToken(token);
+            String tokenUUID = user.getAuthToken();
+           if(tokenUUID.contains(extractedTokenUUID)){
+                return true;
+            }
+            //System.out.println(tokenUUID.contains(extractedTokenUUID));
+            
+        return false;
+    }
+    public Optional<User> getUserById(Long id) {
+        return userRepository.findById(id);
+    }
     public Optional<User> getUserbyUsername(String username) {
         return userRepository.findByUsername(username);
     }
@@ -60,7 +119,7 @@ public class AuthTokenService {
         //return new LoginResponse(userOpt.get().getAuthToken());
         //return ResponseEntity.ok(token);
     }
-
+    
 
 
     public LoginResponse logout(String token) {

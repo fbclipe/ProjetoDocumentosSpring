@@ -39,8 +39,8 @@ public class AuthController {
     }
 
     @GetMapping("/validate")
-    public LoginResponse validateToken(@RequestHeader("Authorization") String token) {
-        return authTokenService.validateToken(token);
+    public boolean validateToken(@RequestHeader("Authorization") String token) {
+        return authTokenService.isTokenValid(token);
     }
 
     @GetMapping("/secure/data")
