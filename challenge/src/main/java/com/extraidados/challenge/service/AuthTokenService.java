@@ -62,7 +62,7 @@ public class AuthTokenService {
    }
 
     public String generateToken(Long userid) {
-        String expiration = LocalDateTime.now().plusMinutes(5).toString();
+        String expiration = LocalDateTime.now().plusHours(5).toString();
         String token = UUID.randomUUID().toString() + "-" + userid + "-" + expiration;
            // token2.setTokenExpiration(LocalDateTime.now().plusMinutes(5)); 
        // userRepository.save(user);

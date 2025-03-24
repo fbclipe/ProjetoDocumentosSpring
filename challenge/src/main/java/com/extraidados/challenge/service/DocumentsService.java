@@ -17,6 +17,7 @@ public class DocumentsService {
     
     @Autowired
     private DocumentRepository documentRepository;
+    @Autowired
     private AuthTokenService authTokenService;
 
     private void validateToken(String token) {

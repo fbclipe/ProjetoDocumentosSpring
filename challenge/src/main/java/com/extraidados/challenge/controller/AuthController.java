@@ -6,14 +6,15 @@ import com.extraidados.challenge.model.RegisterDto;
 import com.extraidados.challenge.response.LoginResponse;
 import com.extraidados.challenge.service.AuthTokenService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-
+    @Autowired
     private final AuthTokenService authTokenService;
-
+    @Autowired
     public AuthController(AuthTokenService authTokenService) {
         this.authTokenService = authTokenService;
     }

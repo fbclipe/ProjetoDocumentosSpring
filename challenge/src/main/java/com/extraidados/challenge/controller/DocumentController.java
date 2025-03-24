@@ -3,8 +3,10 @@ package com.extraidados.challenge.controller;
 import com.extraidados.challenge.entity.Documents;
 import com.extraidados.challenge.model.CreateDocumentModel;
 import com.extraidados.challenge.response.DocumentResponse;
+import com.extraidados.challenge.service.AuthTokenService;
 import com.extraidados.challenge.service.DocumentsService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,12 +17,12 @@ import java.util.List;
 public class DocumentController {
 
     private final DocumentsService documentsService;
-
-    public DocumentController(DocumentsService documentsService) {
+    private final AuthTokenService authTokenService;
+    @Autowired
+    public DocumentController(DocumentsService documentsService, AuthTokenService authTokenService) {
         this.documentsService = documentsService;
+        this.authTokenService = authTokenService;
     }
-
-   
 
     @GetMapping
     public List<Documents> listAllDocuments(@RequestHeader("Authorization") String token) {
@@ -40,6 +42,7 @@ public class DocumentController {
 
     @PostMapping("/create")
     public DocumentResponse createDocument(@RequestBody CreateDocumentModel documentModel,@RequestHeader("Authorization") String token) {
+        authTokenService.isTokenValid(token);
         return documentsService.createDocument(documentModel,token);
     }
 
