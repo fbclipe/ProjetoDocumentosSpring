@@ -11,6 +11,7 @@ class AuthTokenServiceTest {
 
     private AuthTokenService authTokenService;
     private String validToken;
+    private String expiredToken;
     private Long userId = 1L;
     private User user;
 
@@ -19,6 +20,7 @@ class AuthTokenServiceTest {
         authTokenService = new AuthTokenService();
 
         validToken = UUID.randomUUID() + "-" + userId + "-" + LocalDateTime.now().plusHours(5);
+        expiredToken = UUID.randomUUID() + "-" + userId + "-" + LocalDateTime.now().minusHours(1);
 
         user = new User();
         user.setId(userId);
@@ -26,7 +28,7 @@ class AuthTokenServiceTest {
     }
 
     @Test
-    void testExtractUUIDToken() {
+    void mustExtractUUIDToken() {
         String extracted = authTokenService.extractUUIDToken(validToken);
         assertEquals(validToken.split("-")[0] + "-" + validToken.split("-")[1] + "-" +
                      validToken.split("-")[2] + "-" + validToken.split("-")[3] + "-" +
@@ -34,16 +36,26 @@ class AuthTokenServiceTest {
     }
 
     @Test
-    void testExtractIdToken() {
+    void MustExtractIdToken() {
         Long extractedId = authTokenService.extractIdToken(validToken);
         assertEquals(userId, extractedId);
     }
 
-
     @Test
-    void testGenerateToken() {
+    void MustGenerateToken() {
         String generatedToken = authTokenService.generateToken(userId);
         assertNotNull(generatedToken);
         assertTrue(generatedToken.contains(userId.toString()));
+    }
+
+    @Test
+    void MustDetectExpiredToken() {
+        //
+        assertFalse(authTokenService.tokenExpired(expiredToken));
+    }
+
+    @Test
+    void MustDetectValidToken() {
+        assertTrue(authTokenService.tokenExpired(validToken));
     }
 }
