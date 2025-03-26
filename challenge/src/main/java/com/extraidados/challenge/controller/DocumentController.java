@@ -7,7 +7,9 @@ import com.extraidados.challenge.service.AuthTokenService;
 import com.extraidados.challenge.service.DocumentsService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -40,10 +42,13 @@ public class DocumentController {
             return documentsService.findById(document_id,token); 
     }
 
-    @PostMapping("/create")
-    public DocumentResponse createDocument(@RequestBody CreateDocumentModel documentModel,@RequestHeader("Authorization") String token) {
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    //@RequestParam("classification") String classification,
+    public DocumentResponse createDocument(@RequestParam("extension") String classification,@RequestParam("file") MultipartFile file, @RequestHeader("Authorization") String token){
+    //public DocumentResponse createDocument(@RequestBody CreateDocumentModel documentModel,@RequestHeader("Authorization") String token) {
         authTokenService.isTokenValid(token);
-        return documentsService.createDocument(documentModel,token);
+        //refatorar createmodel passando novos parametros
+        return documentsService.createDocument(classification,file,token);
     }
 
     @DeleteMapping("/id/{document_id}")

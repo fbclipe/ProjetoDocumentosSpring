@@ -2,9 +2,9 @@ package com.extraidados.challenge.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -40,12 +40,19 @@ public class DocumentsServiceTest {
         documents.setExtraction("extração realizada");
         documents.setPath("C:\\Users\\carva\\OneDrive\\Área de Trabalho\\DESAFIO EXTRAIDADOS\\challenge");
         documents.setDate(LocalDate.now());
-
-        documents = documentRepository.save(documents);
+        //documents = documentRepository.save(documents);
 
     }
     @Test
     void MustReturnDocumentId() {
+        Documents doc = new Documents();
+        doc.setId(1L);
+        assertEquals(doc.getId(), documentsId);
+        assertEquals("2L", documentsId);
+    }
+
+    @Test
+    void MustReturnCreatedContent() {
         Documents doc = new Documents();
         doc.setId(1L);
         doc.setPath("test_path");
@@ -54,18 +61,20 @@ public class DocumentsServiceTest {
         doc.setContent("Teste");
         doc.setExtraction("Realizada");
 
-        assertEquals(doc.getId(), documentsId);
-        assertEquals("2L", documentsId);
-    }
-
-    @Test
-    void MustReturnCreatedContent() {
-        
+        assertNotNull(doc);
+        assertNull(doc);
     }
 
     @Test 
     void MustReturnUpdatedContent() {
-        
+        Documents doc = new Documents();
+        doc.setId(1L);
+        doc.setPath("test_path");
+        doc.setDate(LocalDate.now());
+        doc.setClassification("Confidencial");
+        doc.setContent("Teste");
+        doc.setExtraction("Realizada");
+        assertEquals(documents, doc);
     }
 
     @Test

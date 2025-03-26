@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.extraidados.challenge.entity.Documents;
 import com.extraidados.challenge.exception.MessageException;
 import com.extraidados.challenge.model.CreateDocumentModel;
@@ -40,22 +42,39 @@ public class DocumentsService {
         return document.get();
     }
 
-    public DocumentResponse createDocument(CreateDocumentModel documentmodel, String token) {
+    public DocumentResponse createDocument(String classification, MultipartFile file, String token) {
         validateToken(token);
+    
         Documents documents = new Documents();
-         String path = "C:\\Users\\carva\\OneDrive\\Área de Trabalho\\DESAFIO EXTRAIDADOS\\challenge";
-         documents.setPath(path);
-         LocalDate date = LocalDate.now();
-         documents.setDate(date);
-         String classification = documentmodel.getClassification();
-         documents.setClassification(classification);
-         String content = "Conteudo extraido do documento";
-         documents.setContent(content);
-         String extraction = "Extração realizada";
-         documents.setExtraction(extraction);
-         Documents savedDocument = documentRepository.save(documents);
-         return new DocumentResponse(savedDocument);
+        
+        String path = "C:\\Users\\carva\\OneDrive\\Área de Trabalho\\DESAFIO EXTRAIDADOS\\challenge";
+        documents.setPath(path);
+        
+        LocalDate date = LocalDate.now();
+        documents.setDate(date);
+        
+        documents.setClassification(classification);
+        
+        String content = "Conteudo extraido do documento";
+        documents.setContent(content);
+        
+        String extraction = "Extração realizada";
+        documents.setExtraction(extraction);
+        
+        String fileName = file.getOriginalFilename();
+        documents.setFileName(fileName);
+        
+        String extension = "";
+        if (fileName != null && fileName.contains(".")) {
+            extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+        }
+        documents.setExtension(extension);
+    
+        Documents savedDocument = documentRepository.save(documents);
+        
+        return new DocumentResponse(savedDocument);
     }
+    
 
     public Documents updateContent(Long id, String newContent, String token) {
         validateToken(token);

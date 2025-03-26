@@ -30,6 +30,10 @@ public class Documents {
     private LocalDate date;
     @Column(nullable = false)
     private String extraction;
+    @Column(nullable = false)
+    private String fileName;
+    @Column(nullable = false)
+    private String extension;
 
     public Long getId() {
         return id;
@@ -79,6 +83,22 @@ public class Documents {
 
     public void setExtraction(String extraction) {
         this.extraction = extraction;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) { 
+        this.fileName = fileName;
+    }
+
+    public String getExtension() {
+        return extension;
+    }
+
+    public void setExtension(String extension) {
+        this.extension = extension;
     }
 
     @Override
