@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.extraidados.challenge.entity.Documents;
 import com.extraidados.challenge.exception.MessageException;
-import com.extraidados.challenge.model.CreateDocumentModel;
 import com.extraidados.challenge.repository.DocumentRepository;
 import com.extraidados.challenge.response.DocumentResponse;
 
@@ -21,6 +20,8 @@ public class DocumentsService {
     private DocumentRepository documentRepository;
     @Autowired
     private AuthTokenService authTokenService;
+    @Autowired
+    private FileSaveService fileSaveService;
 
     private void validateToken(String token) {
         if (!authTokenService.isTokenValid(token)) {
@@ -46,8 +47,8 @@ public class DocumentsService {
         validateToken(token);
     
         Documents documents = new Documents();
-        
-        String path = "C:\\Users\\carva\\OneDrive\\Área de Trabalho\\DESAFIO EXTRAIDADOS\\challenge";
+        //extrairnome do file
+        String path = "C:\\Users\\carva\\OneDrive\\Área de Trabalho\\DESAFIO EXTRAIDADOS\\challenge\\" + file.getOriginalFilename();
         documents.setPath(path);
         
         LocalDate date = LocalDate.now();
@@ -71,8 +72,13 @@ public class DocumentsService {
         documents.setExtension(extension);
     
         Documents savedDocument = documentRepository.save(documents);
-        
+        System.out.println(documents.toString());
+        fileSaveService.saveDocuments(savedDocument,file);
         return new DocumentResponse(savedDocument);
+    }
+
+    public Documents save(Documents documents) {
+        return documentRepository.save(documents);
     }
     
 

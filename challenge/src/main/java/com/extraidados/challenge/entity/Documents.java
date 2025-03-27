@@ -21,19 +21,19 @@ public class Documents {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    private String classification;
+    private String classification; //Classificação do arquivo ex: cnh, identidade etc
     @Column(nullable = false)
-    private String path;
+    private String path; //Diretorio do arquivo
     @Column(nullable = false)
-    private String content;
+    private String content; //Conteudo do arquivo
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate date;
+    private LocalDate date; //Data do upload do arquivo
     @Column(nullable = false)
-    private String extraction;
+    private String extraction; //Extração realizada
     @Column(nullable = false)
-    private String fileName;
+    private String fileName; //Nome do arquivo
     @Column(nullable = false)
-    private String extension;
+    private String extension; //Tipo do arquivo
 
     public Long getId() {
         return id;
