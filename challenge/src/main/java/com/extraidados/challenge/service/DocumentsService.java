@@ -21,7 +21,7 @@ public class DocumentsService {
     @Autowired
     private AuthTokenService authTokenService;
     @Autowired
-    private FileSaveService fileSaveService;
+    private FileTreatmentService fileTreatmentService;
 
     private void validateToken(String token) {
         if (!authTokenService.isTokenValid(token)) {
@@ -73,7 +73,7 @@ public class DocumentsService {
     
         Documents savedDocument = documentRepository.save(documents);
         System.out.println(documents.toString());
-        fileSaveService.saveDocuments(savedDocument,file);
+        fileTreatmentService.saveDocuments(savedDocument,file);
         return new DocumentResponse(savedDocument);
     }
 
