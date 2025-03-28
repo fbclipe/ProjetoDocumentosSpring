@@ -6,10 +6,11 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.extraidados.challenge.entity.Documents;
 import com.extraidados.challenge.exception.MessageException;
+import com.extraidados.challenge.model.Base64Dto;
 import com.extraidados.challenge.repository.DocumentRepository;
 import com.extraidados.challenge.response.DocumentResponse;
 
@@ -110,5 +111,11 @@ public class DocumentsService {
         documentRepository.delete(optionalDocument.get());
         //return ResponseEntity.noContent().build();
             return "Document excluded with sucess";
+    }
+
+    public Base64Dto transformToBase64(Long documentId, String token) {
+        Documents variavel = findById(documentId , token);
+
+        return fileTreatmentService.encodetoBase64(variavel.getFileName(), variavel.getClassification());
     }
 }

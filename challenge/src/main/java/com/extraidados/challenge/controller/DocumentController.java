@@ -1,9 +1,11 @@
 package com.extraidados.challenge.controller;
 
 import com.extraidados.challenge.entity.Documents;
+import com.extraidados.challenge.model.Base64Dto;
+import com.extraidados.challenge.repository.DocumentRepository;
 import com.extraidados.challenge.response.DocumentResponse;
 import com.extraidados.challenge.service.DocumentsService;
-
+import com.extraidados.challenge.service.FileTreatmentService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -18,12 +20,18 @@ import java.util.List;
 public class DocumentController {
 
     @Autowired
-    private final DocumentsService documentsService;
-
+    private DocumentRepository documentRepository;
 
     @Autowired
-    public DocumentController(DocumentsService documentsService) {
+    private final DocumentsService documentsService;
+
+    @Autowired
+    private final FileTreatmentService fileTreatmentService;
+
+    @Autowired
+    public DocumentController(DocumentsService documentsService, FileTreatmentService fileTreatmentService) {
         this.documentsService = documentsService;
+        this.fileTreatmentService = fileTreatmentService;
     }
 
     @GetMapping
@@ -57,5 +65,17 @@ public class DocumentController {
            return e.getMessage();
         }
         //return documentsService.deleteDocument(document_id); 
+    }
+
+    @PostMapping("/base64/{document_id}")
+    public Base64Dto transformToBase64(@PathVariable("document_id") Long documentId, @RequestHeader("Authorization") String token) {
+
+        return documentsService.transformToBase64(documentId, token);
+    }
+
+    @PostMapping("/base64-to-file")
+    public String convertBase64ToFile(@RequestParam String base64Data, @RequestParam String outputPath) {
+        fileTreatmentService.decodeBase64ToFile(base64Data, outputPath);
+        return outputPath;
     }
 }
