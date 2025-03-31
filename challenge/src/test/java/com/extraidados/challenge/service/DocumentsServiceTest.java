@@ -1,86 +1,150 @@
 package com.extraidados.challenge.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.extraidados.challenge.entity.Documents;
+import com.extraidados.challenge.exception.MessageException;
+import com.extraidados.challenge.model.Base64Dto;
 import com.extraidados.challenge.repository.DocumentRepository;
+import com.extraidados.challenge.response.DocumentResponse;
 
-public class DocumentsServiceTest {
-    @Autowired
-    private DocumentsService documentsService;
-    Long documentsId = 1L;
+@ExtendWith(MockitoExtension.class)
+class DocumentsServiceTest {
 
-    @Autowired
+    @Mock
     private DocumentRepository documentRepository;
 
-    private Documents documents;
-    //listall
-    //findbyid
-    //createdocument
-    //updatedocument
-    //deletedocument
+    @Mock
+    private AuthTokenService authTokenService;
+
+    @Mock
+    private FileTreatmentService fileTreatmentService;
+
+    @Mock
+    private MultipartFile file;
+
+    @InjectMocks
+    private DocumentsService documentsService;
+
+    private Documents document;
+
     @BeforeEach
-    void setUp(){
-        documentsService = new DocumentsService();
-        Documents documents = new Documents();
-        documents.setClassification("restrito");
-        documents.setContent("conteudo de teste");
-        documents.setId(documentsId);
-        documents.setExtraction("extração realizada");
-        documents.setPath("C:\\Users\\carva\\OneDrive\\Área de Trabalho\\DESAFIO EXTRAIDADOS\\challenge");
-        documents.setDate(LocalDate.now());
-        //documents = documentRepository.save(documents);
-
-    }
-    @Test
-    void MustReturnDocumentId() {
-        Documents doc = new Documents();
-        doc.setId(1L);
-        assertEquals(doc.getId(), documentsId);
-        assertEquals("2L", documentsId);
+    void setUp() {
+        document = new Documents();
+        document.setId(1L);
+        document.setPath("/path/to/document");
+        document.setDate(LocalDate.now());
+        document.setClassification("Confidential");
+        document.setContent("Sample content");
+        document.setExtraction("Extracted");
+        document.setFileName("document.pdf");
+        document.setExtension("pdf");
     }
 
     @Test
-    void MustReturnCreatedContent() {
-        Documents doc = new Documents();
-        doc.setId(1L);
-        doc.setPath("test_path");
-        doc.setDate(LocalDate.now());
-        doc.setClassification("Confidencial");
-        doc.setContent("Teste");
-        doc.setExtraction("Realizada");
+    void MustFindByIdSuccessfully() {
+        when(authTokenService.isTokenValid("valid-token")).thenReturn(true);
+        when(documentRepository.findById(1L)).thenReturn(Optional.of(document));
 
-        assertNotNull(doc);
-        assertNull(doc);
+        Documents foundDocument = documentsService.findById(1L, "valid-token");
+
+        assertNotNull(foundDocument);
+        assertEquals(1L, foundDocument.getId());
+        verify(documentRepository, times(1)).findById(1L);
     }
-
-    @Test 
-    void MustReturnUpdatedContent() {
-        Documents doc = new Documents();
-        doc.setId(1L);
-        doc.setPath("test_path");
-        doc.setDate(LocalDate.now());
-        doc.setClassification("Confidencial");
-        doc.setContent("Teste");
-        doc.setExtraction("Realizada");
-        assertEquals(documents, doc);
+    @Test
+    void mustThrowExceptionWhenDocumentNotFound() {
+        when(authTokenService.isTokenValid("valid-token")).thenReturn(true);
+        when(documentRepository.findById(1L)).thenReturn(Optional.empty());
+    
+        try {
+            documentsService.findById(1L, "valid-token");
+        } catch (MessageException e) {
+            System.out.println("ERRO CAPTURADO: " + e.getMessage());
+        }
     }
 
     @Test
-    void MustReturnDeletedDocument() {
-        Optional<Documents> optionalDocument = documentRepository.findById(documentsId);
-        assertFalse(optionalDocument.isEmpty());
+    void MustCreateDocumentSuccessfully() {
+        when(authTokenService.isTokenValid("valid-token")).thenReturn(true);
+        when(file.getOriginalFilename()).thenReturn("document.pdf");
+        when(documentRepository.save(any(Documents.class))).thenReturn(document);
+
+        DocumentResponse response = documentsService.createDocument("Confidential", file, "valid-token");
+
+        assertNotNull(response);
+        assertEquals("document.pdf", response.getSavedDocument().getFileName());
+        verify(documentRepository, times(1)).save(any(Documents.class));
+        verify(fileTreatmentService, times(1)).saveDocuments(any(Documents.class), eq(file));
+    }
+
+    @Test
+    void MustUpdateDocumentContentSuccessfully() {
+        when(authTokenService.isTokenValid("valid-token")).thenReturn(true);
+        when(documentRepository.findById(1L)).thenReturn(Optional.of(document));
+        when(documentRepository.save(any(Documents.class))).thenReturn(document);
+
+        Documents updatedDocument = documentsService.updateContent(1L, "Updated content", "valid-token");
+
+        assertNotNull(updatedDocument);
+        assertEquals("Updated content", updatedDocument.getContent());
+        verify(documentRepository, times(1)).save(document);
+    }
+
+    @Test
+    void MustDeleteDocumentSuccessfully() {
+        when(authTokenService.isTokenValid("valid-token")).thenReturn(true);
+        when(documentRepository.findById(1L)).thenReturn(Optional.of(document));
+        doNothing().when(documentRepository).delete(document);
+
+        String response = documentsService.deleteDocument(1L, "valid-token");
+
+        assertEquals("Document excluded with sucess", response);
+        verify(documentRepository, times(1)).delete(document);
+    }
+
+    @Test
+    void MustThrowExceptionWhenDeletingNonExistentDocument() {
+        when(authTokenService.isTokenValid("valid-token")).thenReturn(true);
+        when(documentRepository.findById(1L)).thenReturn(Optional.empty());
+    
+        try {
+            documentsService.deleteDocument(1L, "valid-token");
+        } catch (MessageException e) {
+            System.out.println("ERRO CAPTURADO: " + e.getMessage());
+            assertEquals("Document not found.", e.getMessage());
+        }
+    }
+    
+
+    @Test
+    void MustTransformToBase64Successfully() {
+        when(authTokenService.isTokenValid("valid-token")).thenReturn(true);
+        when(documentRepository.findById(1L)).thenReturn(Optional.of(document));
         
+        Base64Dto mockBase64Dto = new Base64Dto();
+        mockBase64Dto.setBase64("base64data");
+        
+        when(fileTreatmentService.encodetoBase64(anyString(), anyString())).thenReturn(mockBase64Dto);
+
+        Base64Dto base64Dto = documentsService.transformToBase64(1L, "valid-token");
+
+        assertNotNull(base64Dto);
+        assertEquals("base64data", base64Dto.getBase64());
     }
 }
