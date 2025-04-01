@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -50,13 +51,14 @@ class DocumentsServiceTest {
         document.setPath("/path/to/document");
         document.setDate(LocalDate.now());
         document.setClassification("Confidential");
-        document.setContent("Sample content");
+        document.setContent("content");
         document.setExtraction("Extracted");
         document.setFileName("document.pdf");
         document.setExtension("pdf");
     }
 
     @Test
+    @DisplayName("Deve Achar o ID pela busca com sucesso")
     void MustFindByIdSuccessfully() {
         when(authTokenService.isTokenValid("valid-token")).thenReturn(true);
         when(documentRepository.findById(1L)).thenReturn(Optional.of(document));
@@ -68,7 +70,7 @@ class DocumentsServiceTest {
         verify(documentRepository, times(1)).findById(1L);
     }
     @Test
-    void mustThrowExceptionWhenDocumentNotFound() {
+    void MustThrowExceptionWhenDocumentNotFound() {
         when(authTokenService.isTokenValid("valid-token")).thenReturn(true);
         when(documentRepository.findById(1L)).thenReturn(Optional.empty());
     
@@ -117,18 +119,15 @@ class DocumentsServiceTest {
         assertEquals("Document excluded with sucess", response);
         verify(documentRepository, times(1)).delete(document);
     }
-
+    //ambiente dps execucao dps verificação
     @Test
     void MustThrowExceptionWhenDeletingNonExistentDocument() {
         when(authTokenService.isTokenValid("valid-token")).thenReturn(true);
         when(documentRepository.findById(1L)).thenReturn(Optional.empty());
-    
-        try {
-            documentsService.deleteDocument(1L, "valid-token");
-        } catch (MessageException e) {
-            System.out.println("ERRO CAPTURADO: " + e.getMessage());
-            assertEquals("Document not found.", e.getMessage());
-        }
+       MessageException lalala = assertThrows(MessageException.class,()->  documentsService.deleteDocument(1L, "valid-token") );
+       //pode dividir o teste em 2
+       assertEquals(lalala.getMessage(), "Document not found.");
+       verify(documentRepository, times(0)).delete(document); 
     }
     
 
