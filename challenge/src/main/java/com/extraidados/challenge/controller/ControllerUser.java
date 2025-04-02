@@ -2,11 +2,14 @@ package com.extraidados.challenge.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.extraidados.challenge.entity.User;
+import com.extraidados.challenge.response.ApiListUsers;
 import com.extraidados.challenge.service.UserService;
 
 @RestController
@@ -19,7 +22,14 @@ public class ControllerUser {
     }
 
     @GetMapping("/findall")
-    public List<User> findAllUsers() {
-        return userService.findAllUser();
+    public ResponseEntity<ApiListUsers> findAllUsers() {
+        try {
+            List<User> user = userService.findAllUser();
+            ApiListUsers response = new ApiListUsers(user);
+           return ResponseEntity.ok(response);
+        } catch (Exception e) {
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        //return userService.findAllUser();
     }
 }

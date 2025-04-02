@@ -7,6 +7,8 @@ import com.extraidados.challenge.response.LoginResponse;
 import com.extraidados.challenge.service.AuthTokenService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,32 +22,42 @@ public class AuthController {
     }
 //usermodel
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginDto loginDto) {
         try {
-            return authTokenService.login(loginDto);
+            LoginResponse login = authTokenService.login(loginDto);
+            return ResponseEntity.ok(login);
+            //return authTokenService.login(loginDto);
         } catch (Exception e) {
-            return new LoginResponse(e.getMessage()) ; 
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            //return new LoginResponse(e.getMessage()) ; 
         }
         
     }
 
     @PostMapping("/register")
-    public  User registerUser(@RequestBody RegisterDto user) {
-        return authTokenService.registerUser(user);
+    public  ResponseEntity<Object> registerUser(@RequestBody RegisterDto user) {
+        try {
+            User register = authTokenService.registerUser(user);
+            return ResponseEntity.ok(register);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        //return authTokenService.registerUser(user);
     }
 
     @PostMapping("/logout")
-    public LoginResponse logout(@RequestHeader("Authorization") String token) {
-        return authTokenService.logout(token);
+    public ResponseEntity<LoginResponse> logout(@RequestHeader("Authorization") String token) {
+        try {
+            LoginResponse logout = authTokenService.logout(token);
+            return ResponseEntity.ok(logout);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        //return authTokenService.logout(token);
     }
 
-    @GetMapping("/validate")
+/*  @GetMapping("/validate")
     public boolean validateToken(@RequestHeader("Authorization") String token) {
         return authTokenService.isTokenValid(token);
-    }
-
-    @GetMapping("/secure/data")
-    public LoginResponse getSecureData(@RequestHeader("Authorization") String token) {
-        return authTokenService.getSecureData(token);
-    }
+    }*/
 }

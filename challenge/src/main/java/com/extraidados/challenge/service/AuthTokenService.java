@@ -146,15 +146,6 @@ public class AuthTokenService {
                 return new LoginResponse(isValid);
     }
 
-    public LoginResponse getSecureData(String token) {
-        if (!isTokenValid(token)) {
-            throw new MessageException("User not found.");
-            //return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expired or invalid.");
-        }
-        return new LoginResponse(token);
-
-        //return ResponseEntity.ok("Sucessful login.");
-    }
 
     public User registerUser(RegisterDto registerDto) {
         User user = userService.createUserAdmin(registerDto);

@@ -2,6 +2,7 @@ package com.extraidados.challenge.service;
 
 import com.extraidados.challenge.entity.User;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -18,6 +19,7 @@ class AuthTokenServiceTest {
 
 
     @BeforeEach
+    @DisplayName("Dados para realizar os testes")
     void setUp() {
         authTokenService = new AuthTokenService();
 
@@ -30,6 +32,7 @@ class AuthTokenServiceTest {
     }
 
     @Test
+    @DisplayName("Deve extrair o token UUID")
     void mustExtractUUIDToken() {
         String extracted = authTokenService.extractUUIDToken(validToken);
         assertEquals(validToken.split("-")[0] + "-" + validToken.split("-")[1] + "-" +
@@ -41,6 +44,7 @@ class AuthTokenServiceTest {
     }
 
     @Test
+    @DisplayName("Deve extrair o ID do token")
     void MustExtractIdToken() {
         Long extractedId = authTokenService.extractIdToken(validToken);
         assertEquals(userId, extractedId);
@@ -48,6 +52,7 @@ class AuthTokenServiceTest {
     }
 
     @Test
+    @DisplayName("Deve gerar um token")
     void MustGenerateToken() {
         String generatedToken = authTokenService.generateToken(userId);
         assertNotNull(generatedToken);
@@ -56,12 +61,14 @@ class AuthTokenServiceTest {
     }
 
     @Test
+    @DisplayName("Deve detectar um token expirado")
     void MustDetectExpiredToken() {
         assertFalse(authTokenService.tokenExpired(expiredToken));
         //assertTrue(authTokenService.tokenExpired(expiredToken));
     }
 
     @Test
+    @DisplayName("Deve detectar se o token é valido")
     void MustDetectValidToken() {
         assertTrue(authTokenService.tokenExpired(validToken));
         assertFalse(authTokenService.tokenExpired(expiredToken));
