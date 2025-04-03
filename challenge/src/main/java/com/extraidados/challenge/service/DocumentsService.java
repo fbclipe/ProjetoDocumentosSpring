@@ -98,6 +98,7 @@ public class DocumentsService {
         }
     }
 
+
     public String deleteDocument(Long id, String token) {
         validateToken(token);
         Optional<Documents> optionalDocument = documentRepository.findById(id);
@@ -117,4 +118,25 @@ public class DocumentsService {
 
         return fileTreatmentService.encodetoBase64(variavel.getFileName(), variavel.getClassification());
     }
+
+    public List<Documents> findByDate (LocalDate date, String token) {
+        validateToken(token);
+        LocalDate error = LocalDate.now();
+        if(date.isAfter(error)){
+            throw new MessageException("invalid date");
+        }
+        return documentRepository.findByDate(date);
+    }
+
+    public List<Documents> findByDateBetween (LocalDate begin, LocalDate end, String token){
+        validateToken(token);
+        LocalDate error = LocalDate.now();
+        if(end.isAfter(error)){
+            throw new MessageException("invalid date");
+        }
+        return documentRepository.findByDateBetween(begin, end);
+    }
+    
+    
+    
 }

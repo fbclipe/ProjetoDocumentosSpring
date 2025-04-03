@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.extraidados.challenge.entity.User;
+import com.extraidados.challenge.exception.ApiException;
 import com.extraidados.challenge.response.ApiListUsers;
 import com.extraidados.challenge.service.UserService;
 
@@ -22,13 +23,14 @@ public class ControllerUser {
     }
 
     @GetMapping("/findall")
-    public ResponseEntity<ApiListUsers> findAllUsers() {
+    public ResponseEntity<?> findAllUsers() {
         try {
             List<User> user = userService.findAllUser();
             ApiListUsers response = new ApiListUsers(user);
            return ResponseEntity.ok(response);
         } catch (Exception e) {
-           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+           ApiException apiException = new ApiException(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
         }
         //return userService.findAllUser();
     }

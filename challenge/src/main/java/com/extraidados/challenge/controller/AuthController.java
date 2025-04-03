@@ -1,6 +1,7 @@
 package com.extraidados.challenge.controller;
 
 import com.extraidados.challenge.entity.User;
+import com.extraidados.challenge.exception.ApiException;
 import com.extraidados.challenge.model.LoginDto;
 import com.extraidados.challenge.model.RegisterDto;
 import com.extraidados.challenge.response.LoginResponse;
@@ -22,36 +23,40 @@ public class AuthController {
     }
 //usermodel
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
         try {
             LoginResponse login = authTokenService.login(loginDto);
             return ResponseEntity.ok(login);
             //return authTokenService.login(loginDto);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            ApiException apiException = new ApiException(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
+            //return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
             //return new LoginResponse(e.getMessage()) ; 
         }
         
     }
 
     @PostMapping("/register")
-    public  ResponseEntity<Object> registerUser(@RequestBody RegisterDto user) {
+    public  ResponseEntity<?> registerUser(@RequestBody RegisterDto user) {
         try {
             User register = authTokenService.registerUser(user);
             return ResponseEntity.ok(register);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            ApiException apiException = new ApiException(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
         }
         //return authTokenService.registerUser(user);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<LoginResponse> logout(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
         try {
             LoginResponse logout = authTokenService.logout(token);
             return ResponseEntity.ok(logout);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            ApiException apiException = new ApiException(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
         }
         //return authTokenService.logout(token);
     }
