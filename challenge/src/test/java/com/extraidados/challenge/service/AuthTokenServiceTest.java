@@ -37,18 +37,22 @@ class AuthTokenServiceTest {
     private User user;
 
 
-
     @BeforeEach
     @DisplayName("Dados para realizar os testes")
     void setUp() {
-        LocalDateTime expiration = LocalDateTime.now().plusHours(2);
-        validToken = UUID.randomUUID() + "-" + userId + "-" + expiration;
-        invalidToken = UUID.randomUUID() + "-" + userId + "-" + LocalDateTime.now().minusHours(2);
-
+        validToken = authTokenService.generateToken(userId);
+    
+        // Criação de um token expirado com mesmo formato
+        String[] parts = validToken.split("-");
+        String uuid = parts[0] + "-" + parts[1] + "-" + parts[2] + "-" + parts[3] + "-" + parts[4];
+        LocalDateTime expiredTime = LocalDateTime.now().minusHours(2);
+        invalidToken = uuid + "-" + userId + "-" + expiredTime;
+    
         user = new User();
         user.setId(userId);
         user.setAuthToken(validToken);
     }
+    
 
     @Test
     @DisplayName("Deve extrair o token UUID")
