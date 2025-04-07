@@ -1,18 +1,38 @@
 package com.extraidados.challenge.service;
 
 import com.extraidados.challenge.entity.User;
+import com.extraidados.challenge.repository.UserRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class AuthTokenServiceTest {
 
+    @Mock
+    private UserRepository userRepository;
+
+    @InjectMocks 
     private AuthTokenService authTokenService;
+
     private String validToken;
-    private String expiredToken;
+    private String invalidToken;
     private Long userId = 1L;
     private User user;
 
@@ -21,10 +41,9 @@ class AuthTokenServiceTest {
     @BeforeEach
     @DisplayName("Dados para realizar os testes")
     void setUp() {
-        authTokenService = new AuthTokenService();
-
-        validToken = UUID.randomUUID() + "-" + userId + "-" + LocalDateTime.now().plusHours(5);
-        expiredToken = UUID.randomUUID() + "-" + userId + "-" + LocalDateTime.now().minusHours(1);
+        LocalDateTime expiration = LocalDateTime.now().plusHours(2);
+        validToken = UUID.randomUUID() + "-" + userId + "-" + expiration;
+        invalidToken = UUID.randomUUID() + "-" + userId + "-" + LocalDateTime.now().minusHours(2);
 
         user = new User();
         user.setId(userId);
@@ -63,7 +82,7 @@ class AuthTokenServiceTest {
     @Test
     @DisplayName("Deve detectar um token expirado")
     void MustDetectExpiredToken() {
-        assertFalse(authTokenService.tokenExpired(expiredToken));
+        assertFalse(authTokenService.tokenExpired(invalidToken));
         //assertTrue(authTokenService.tokenExpired(expiredToken));
     }
 
@@ -71,6 +90,63 @@ class AuthTokenServiceTest {
     @DisplayName("Deve detectar se o token é valido")
     void MustDetectValidToken() {
         assertTrue(authTokenService.tokenExpired(validToken));
-        assertFalse(authTokenService.tokenExpired(expiredToken));
+        assertFalse(authTokenService.tokenExpired(invalidToken));
     }
+    
+    @Test
+    @DisplayName("Deve retornar verdadeiro para token válido")
+    void mustReturnTrueForValidToken() {
+        // Ambiente
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // Execução
+        boolean result = authTokenService.isTokenValid(validToken);
+
+        // Verificação
+        assertTrue(result);
+        verify(userRepository, atLeastOnce()).findById(userId);
+    }
+
+    @Test
+    @DisplayName("Deve retornar falso para token expirado")
+    void mustReturnFalseForExpiredToken() {
+
+        // Execução
+        boolean result = authTokenService.isTokenValid(invalidToken);
+
+        // Verificação
+        assertFalse(result);
+        verify(userRepository, never()).findById(any()); // nem deveria buscar o user
+    }
+
+    @Test
+    @DisplayName("Deve retornar falso se usuário não for encontrado")
+    void mustReturnFalseIfUserNotFound() {
+        // Ambiente
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // Execução
+        boolean result = authTokenService.isTokenValid(validToken);
+
+        // Verificação
+        assertFalse(result);
+        verify(userRepository, times(1)).findById(userId);
+    }
+
+    @Test
+    @DisplayName("Deve retornar falso se token UUID não corresponder")
+    void mustReturnFalseIfTokenUUIDDoesNotMatch() {
+        // Ambiente
+        String anotherToken = UUID.randomUUID() + "-" + userId + "-" + LocalDateTime.now().plusHours(5);
+        user.setAuthToken(anotherToken);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // Execução
+        boolean result = authTokenService.isTokenValid(validToken);
+
+        // Verificação
+        assertFalse(result);
+        verify(userRepository, times(1)).findById(userId);
+    }
+    
 }

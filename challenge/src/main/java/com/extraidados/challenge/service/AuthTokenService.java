@@ -72,27 +72,26 @@ public class AuthTokenService {
     //validar o uuid token
     //usergettoken extrair o uuid e validar se ta batendo os dois
     public boolean isTokenValid(String token) {
-            boolean verification = tokenExpired(token);
-            if(!verification) {
-                //nao quebra aqui
-                return false;
-            }
-
-            Long tokenid = extractIdToken(token);
-
-            User user = getUserById(tokenid).get();
-            if(!getUserById(tokenid).isPresent()){
-                //nao quebra aqui
-                return false;
-            }
-
-            String extractedTokenUUID = extractUUIDToken(token);
-            String tokenUUID = user.getAuthToken();
-           if(tokenUUID.contains(extractedTokenUUID)){
-                return true;
-            }
-            //System.out.println(tokenUUID.contains(extractedTokenUUID));
-            
+        boolean verification = tokenExpired(token);
+        if (!verification) {
+            return false;
+        }
+    
+        Long tokenid = extractIdToken(token);
+    
+        Optional<User> optionalUser = getUserById(tokenid);
+        if (!optionalUser.isPresent()) {
+            return false;
+        }
+    
+        User user = optionalUser.get();
+        String extractedTokenUUID = extractUUIDToken(token);
+        String tokenUUID = user.getAuthToken();
+    
+        if (tokenUUID.contains(extractedTokenUUID)) {
+            return true;
+        }
+    
         return false;
     }
     public Optional<User> getUserById(Long id) {

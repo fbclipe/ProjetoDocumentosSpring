@@ -161,4 +161,5 @@ class DocumentsServiceTest {
         assertNotNull(base64Dto);
         assertEquals("base64data", base64Dto.getBase64());
     }
+    
 }
