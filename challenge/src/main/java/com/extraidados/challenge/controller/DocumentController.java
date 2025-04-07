@@ -78,7 +78,7 @@ public class DocumentController {
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createDocument(@RequestParam("classification") String classification, @RequestParam("file") MultipartFile file, @RequestHeader("Authorization") String token) {
         try {
-            DocumentResponse response = documentsService.createDocument(classification, file, token);
+            Documents response = documentsService.createDocument(classification, file, token);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
             ApiException apiException = new ApiException(e.getMessage(), HttpStatus.BAD_REQUEST);

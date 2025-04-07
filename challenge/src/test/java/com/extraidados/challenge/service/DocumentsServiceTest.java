@@ -22,7 +22,6 @@ import com.extraidados.challenge.entity.Documents;
 import com.extraidados.challenge.exception.MessageException;
 import com.extraidados.challenge.model.Base64Dto;
 import com.extraidados.challenge.repository.DocumentRepository;
-import com.extraidados.challenge.response.DocumentResponse;
 
 @ExtendWith(MockitoExtension.class)
 class DocumentsServiceTest {
@@ -95,10 +94,10 @@ class DocumentsServiceTest {
         when(file.getOriginalFilename()).thenReturn("document.pdf");
         when(documentRepository.save(any(Documents.class))).thenReturn(document);
         //Execução
-        DocumentResponse response = documentsService.createDocument("Confidential", file, "valid-token");
+        Documents response = documentsService.createDocument("Confidential", file, "valid-token");
         //Verificação  
         assertNotNull(response);
-        assertEquals("document.pdf", response.getSavedDocument().getFileName());
+        assertEquals("document.pdf", response.getFileName());
         verify(documentRepository, times(1)).save(any(Documents.class));
         verify(fileTreatmentService, times(1)).saveDocuments(any(Documents.class), eq(file));
     }

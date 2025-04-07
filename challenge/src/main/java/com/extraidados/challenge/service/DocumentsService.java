@@ -43,7 +43,7 @@ public class DocumentsService {
         return document.get();
     }
 
-    public DocumentResponse createDocument(String classification, MultipartFile file, String token) {
+    public Documents createDocument(String classification, MultipartFile file, String token) {
         validateToken(token);
     
         Documents documents = new Documents();
@@ -74,7 +74,7 @@ public class DocumentsService {
         Documents savedDocument = documentRepository.save(documents);
         System.out.println(documents.toString());
         fileTreatmentService.saveDocuments(savedDocument,file);
-        return new DocumentResponse(savedDocument);
+        return savedDocument;
     }
 
     public Documents save(Documents documents) {

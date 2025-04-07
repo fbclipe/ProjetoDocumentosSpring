@@ -17,4 +17,14 @@ public class DocumentResponse {
         this.savedDocument = savedDocument;
     }
 
+    public Object getClassification() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getClassification'");
+    }
+
+    public Long getId() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getId'");
+    }
+
 }
