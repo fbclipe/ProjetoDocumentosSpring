@@ -1,7 +1,10 @@
 package com.extraidados.challenge.service;
 
 import com.extraidados.challenge.entity.User;
+import com.extraidados.challenge.exception.MessageException;
+import com.extraidados.challenge.model.LoginDto;
 import com.extraidados.challenge.repository.UserRepository;
+import com.extraidados.challenge.response.LoginResponse;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -153,4 +156,90 @@ class AuthTokenServiceTest {
         verify(userRepository, times(1)).findById(userId);
     }
     
+    @Test
+    @DisplayName("Deve retornar usuário ao buscar por username")
+    void mustReturnUserWhenUsernameExists() {
+        // Ambiente
+        String username = "testuser";
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+
+         // Execução
+        Optional<User> result = authTokenService.getUserbyUsername(username);
+
+        // Verificação
+        assertTrue(result.isPresent());
+        assertEquals(user, result.get());
+        verify(userRepository).findByUsername(username);
+    }
+
+    @Test
+    @DisplayName("Deve fazer login com credenciais válidas")
+    void mustLoginWithValidCredentials() {
+        // Ambiente
+        String username = "testuser";
+        String password = "123456";
+        user.setUsername(username);
+        user.setPassword(password);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+
+        // Execução
+        LoginDto loginDto = new LoginDto();
+        loginDto.setUsername(username);
+        loginDto.setPassword(password);
+        LoginResponse response = authTokenService.login(loginDto);
+
+        // Verificação
+        assertNotNull(response);
+        assertNotNull(response.getToken());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção para login com senha inválida")
+    void mustThrowExceptionForInvalidPassword() {
+        // Ambiente
+        String username = "testuser";
+        user.setUsername(username);
+        user.setPassword("correctPassword");
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+
+        // Execução 
+        LoginDto loginDto = new LoginDto();
+        loginDto.setUsername(username);
+        loginDto.setPassword("wrongPassword");
+        
+        // Verificação
+        assertThrows(MessageException.class, () -> authTokenService.login(loginDto));
+    }
+
+    @Test
+    @DisplayName("Deve fazer logout com token válido")
+    void mustLogoutWithValidToken() {
+        // Ambiente
+        user.setAuthToken(validToken);
+        user.setTokenExpiration(LocalDateTime.now().plusHours(1));
+        when(userRepository.findByAuthToken(validToken)).thenReturn(Optional.of(user));
+
+        // Execução
+        LoginResponse response = authTokenService.logout(validToken);
+
+        // Verificação
+        assertNull(user.getAuthToken());
+        assertNull(user.getTokenExpiration());
+        verify(userRepository).save(user);
+        assertNull(response.getToken());
+    }
+
+    @Test
+    @DisplayName("Deve validar token corretamente")
+    void mustValidateTokenCorrectly() {
+        // Ambiente
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // Execução
+        LoginResponse response = authTokenService.validateToken(validToken);
+
+        // Verificação
+        assertNotNull(response);
+    }
 }
