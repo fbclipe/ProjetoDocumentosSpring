@@ -235,11 +235,19 @@ class AuthTokenServiceTest {
     void mustValidateTokenCorrectly() {
         // Ambiente
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        System.out.println("\n");
+        System.out.println("\n");
+        System.out.println("\n");
+        System.out.println("\n");
 
+        System.out.println(validToken);
         // Execução
         LoginResponse response = authTokenService.validateToken(validToken);
-
+        
         // Verificação
         assertNotNull(response);
     }
 }
+
+//33152976-7894-4f2e-8b4c-f824236710fa-1-2025-04-09T20:00:23.572004500
+//89daeb24-8bf1-458e-b55a-91daf20d5bd9-1-2025-04-09T19:58:55.027984200

@@ -38,7 +38,8 @@ public class AuthTokenService {
    }
 
    public Boolean tokenExpired(String token){
-        LocalDateTime time = LocalDateTime.now();
+    System.out.println("entrei aqui");    
+    LocalDateTime time = LocalDateTime.now();
         String[] authtoken = token.split("-");
         //int variavel = Integer.parseInt(variavel.substring(valor1 , valor2));
 
@@ -48,8 +49,7 @@ public class AuthTokenService {
         int horaexpiracao = Integer.parseInt(authtoken[8].substring(3, 5));
         int minutoexpiracao = Integer.parseInt(authtoken[8].substring(6, 8)); 
         int segundoexpiracao = Integer.parseInt(authtoken[8].substring(9, 11)); 
-        int milesimosexpiracao = Integer.parseInt(authtoken[8].substring(12, 21));
-
+        int milesimosexpiracao = Integer.parseInt(authtoken[8].substring(12, authtoken[8].length()));
         LocalDateTime expirationtime = LocalDateTime.of(anoexpiracao, mesexpiracao, diaexpiracao, horaexpiracao, minutoexpiracao, segundoexpiracao, milesimosexpiracao);
         //System.out.println("token" +expirationtime);
 
@@ -74,6 +74,7 @@ public class AuthTokenService {
     public boolean isTokenValid(String token) {
         boolean verification = tokenExpired(token);
         if (!verification) {
+            System.out.println();
             return false;
         }
     

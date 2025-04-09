@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ActiveProfiles("test")
-public class DocumentsServiceIntegrationTest {
+public class DocumentsServiceTest {
 
     @Autowired
     private DocumentsService documentsService;
@@ -56,10 +56,10 @@ public class DocumentsServiceIntegrationTest {
         //Ambiente
         MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "application/pdf", "mock content".getBytes());
         //Execução
-        Documents document = documentsService.createDocument("Financeiro", file, token);
+        Documents document = documentsService.createDocument("document", file, token);
         //Verificação
         assertNotNull(document);
-        assertEquals("Financeiro", document.getClassification());
+        assertEquals("document", document.getClassification());
         //Execução
         Documents doc = documentsService.findById(document.getId(), token);
         //Verificação
@@ -73,7 +73,7 @@ public class DocumentsServiceIntegrationTest {
         //Ambiente
         MockMultipartFile file = new MockMultipartFile("file", "another.pdf", "application/pdf", "content".getBytes());
         //Execução
-        documentsService.createDocument("RH", file, token);
+        documentsService.createDocument("document", file, token);
         List<Documents> allDocs = documentsService.listAll(token);
         //Verificação
         assertFalse(allDocs.isEmpty());
@@ -113,7 +113,7 @@ public class DocumentsServiceIntegrationTest {
         LocalDate today = LocalDate.now();
         MockMultipartFile file = new MockMultipartFile("file", "bydate.pdf", "application/pdf", "content".getBytes());
         //Execução
-        documentsService.createDocument("Contábil", file, token);
+        documentsService.createDocument("documento", file, token);
         List<Documents> docs = documentsService.findByDate(today, token);
         //Verificação
         assertFalse(docs.isEmpty());
