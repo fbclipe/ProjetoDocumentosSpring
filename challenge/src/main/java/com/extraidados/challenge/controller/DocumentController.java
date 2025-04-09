@@ -40,24 +40,12 @@ package com.extraidados.challenge.controller;
          this.fileTreatmentService = fileTreatmentService;
      }
  
-     @GetMapping
+     @GetMapping("/findall")
      public ResponseEntity<?> listAllDocuments(@RequestHeader("Authorization") String token) {
          try {
          List<Documents> documents = documentsService.listAll(token);
          ApiListDocumentos response = new ApiListDocumentos(documents);
              return ResponseEntity.ok(response);
-         } catch (Exception e) {
-             ApiException apiException = new ApiException(e.getMessage(), HttpStatus.BAD_REQUEST);
-             return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
-         }
-     }
- 
-     
-     @PutMapping("/{id}/content")
-     public ResponseEntity<?> updateDocumentContent(@PathVariable Long id, @RequestBody String content, @RequestHeader("Authorization") String token) {
-         try {
-             Documents document = documentsService.updateContent(id, content, token);
-             return ResponseEntity.ok(document);
          } catch (Exception e) {
              ApiException apiException = new ApiException(e.getMessage(), HttpStatus.BAD_REQUEST);
              return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);

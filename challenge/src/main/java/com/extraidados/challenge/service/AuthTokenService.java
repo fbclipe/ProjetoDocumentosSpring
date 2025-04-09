@@ -37,8 +37,7 @@ public class AuthTokenService {
         return Long.parseLong(token); 
    }
 
-   public Boolean tokenExpired(String token){
-    System.out.println("entrei aqui");    
+   public Boolean tokenExpired(String token){   
     LocalDateTime time = LocalDateTime.now();
         String[] authtoken = token.split("-");
         //int variavel = Integer.parseInt(variavel.substring(valor1 , valor2));

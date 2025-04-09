@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
-public class ControllerUserIntegrationTest {
+public class ControllerUserTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -59,6 +59,5 @@ public class ControllerUserIntegrationTest {
             .andExpect(jsonPath("$.user.length()").value(2))
             .andExpect(jsonPath("$.user[0].username").value("joao"))
             .andExpect(jsonPath("$.user[1].username").value("maria"));
-            
     }
 }

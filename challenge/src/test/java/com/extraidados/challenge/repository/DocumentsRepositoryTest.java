@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ActiveProfiles("test")
-public class DocumentsServiceTest {
+public class DocumentsRepositoryTest {
 
     @Autowired
     private DocumentsService documentsService;
