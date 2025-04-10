@@ -7,13 +7,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Base64;
-import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.extraidados.challenge.entity.Documents;
 import com.extraidados.challenge.model.Base64Dto;
-import com.extraidados.challenge.repository.DocumentRepository;
 
 @Service
 public class FileTreatmentService {

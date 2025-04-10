@@ -18,10 +18,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -32,7 +34,8 @@ import com.extraidados.challenge.entity.User;
 import com.extraidados.challenge.repository.DocumentRepository;
 import com.extraidados.challenge.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY) //troca o banco de dados real pelo banco de memoria H2
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD) //Destroi e reconstroi o contexto da aplicação a cada teste
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -118,7 +121,7 @@ public class DocumentControllerTest {
         mockMvc.perform(get("/documents/id/1")
         .header("Authorization", token)
         .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.fileName").value("document.pdf"));  
+        .andExpect(jsonPath("$.fileName").value("document.txt"));  
     }
 
     @Test

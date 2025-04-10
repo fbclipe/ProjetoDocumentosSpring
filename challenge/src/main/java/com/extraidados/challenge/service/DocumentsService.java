@@ -11,7 +11,6 @@ import com.extraidados.challenge.entity.Documents;
 import com.extraidados.challenge.exception.MessageException;
 import com.extraidados.challenge.model.Base64Dto;
 import com.extraidados.challenge.repository.DocumentRepository;
-import com.extraidados.challenge.response.DocumentResponse;
 
 @Service
 public class DocumentsService {
@@ -103,7 +102,7 @@ public class DocumentsService {
         validateToken(token);
         Optional<Documents> optionalDocument = documentRepository.findById(id);
 
-        if (optionalDocument.isEmpty()) {
+        if (!optionalDocument.isPresent()) {
             //return ResponseEntity.notFound().build();
             throw new MessageException("Document not found.");
         }

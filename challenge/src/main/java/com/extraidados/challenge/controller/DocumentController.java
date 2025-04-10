@@ -6,7 +6,6 @@ package com.extraidados.challenge.controller;
  import com.extraidados.challenge.exception.ApiException;
  import com.extraidados.challenge.model.Base64Dto;
  import com.extraidados.challenge.repository.DocumentRepository;
- import com.extraidados.challenge.response.DocumentResponse;
  import com.extraidados.challenge.service.DocumentsService;
  import com.extraidados.challenge.service.FileTreatmentService;
  
