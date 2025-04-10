@@ -9,6 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 
+import javax.print.attribute.standard.Media;
+
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -194,6 +196,75 @@ public class DocumentControllerTest {
         String token = objectMapper.readTree(response).get("token").asText();
 
         MvcResult finalresponse = mockMvc.perform(post("/documents/base64/1")
+        .header("Authorization", token)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andReturn();
+
+        String responseBody = finalresponse.getResponse().getContentAsString();
+        System.out.println("Resposta recebida: " + responseBody);
+    }
+
+    @Test
+    @DisplayName("Deve encontrar os documentos cadastrados na data especificada e retorna-lo")
+    void mustFindDocumentByDate () throws Exception {
+        String userJson = "{\"username\": \"testedoc\",\"password\": \"testedoc\"}";
+
+        MvcResult result = mockMvc.perform(post("/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(userJson))
+        .andExpect(status().isOk())
+        .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        String token = objectMapper.readTree(response).get("token").asText();
+
+        String today = LocalDate.now().toString();
+       MvcResult finalresponse =  mockMvc.perform(get("/documents/findbydate")
+        .param("date" , today)
+        .header("Authorization", token)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andReturn();
+
+        String responseBody = finalresponse.getResponse().getContentAsString();
+        System.out.println("Resposta recebida: " + responseBody);
+    }
+
+    @Test
+    @DisplayName("Deve receber duas datas e procurar documentos cadastrados durante essas datas")
+    void mustFindDocumentBetweenTwoDates () throws Exception {
+        String userJson = "{\"username\": \"testedoc\",\"password\": \"testedoc\"}";
+
+        MvcResult result = mockMvc.perform(post("/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(userJson))
+        .andExpect(status().isOk())
+        .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        String token = objectMapper.readTree(response).get("token").asText();
+
+        String today = LocalDate.now().toString();
+        String yesterday = LocalDate.of(2025, 04, 9).toString();
+
+        Documents doc = new Documents();
+        doc.setClassification("foto");
+        doc.setFileName("fototeste");
+        doc.setPath("/path/to/document");
+        doc.setDate(LocalDate.of(2025, 04, 9));
+        doc.setContent("conteudo do arquivo");
+        doc.setExtension("extension");
+        doc.setExtraction(("Extraido com sucesso"));
+        documentRepository.save(doc);
+
+        MvcResult finalresponse = mockMvc.perform(get("/documents/findbydatebetween")
+        .param("begin", yesterday)
+        .param("end", today)
         .header("Authorization", token)
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
