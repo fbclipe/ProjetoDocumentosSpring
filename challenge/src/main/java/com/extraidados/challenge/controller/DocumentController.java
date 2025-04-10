@@ -43,11 +43,16 @@ package com.extraidados.challenge.controller;
      public ResponseEntity<?> listAllDocuments(@RequestHeader("Authorization") String token) {
          try {
          List<Documents> documents = documentsService.listAll(token);
+
+         if(documents.isEmpty()){
+            throw new Exception(("No documents saved"));
+         }
+
          ApiListDocumentos response = new ApiListDocumentos(documents);
              return ResponseEntity.ok(response);
          } catch (Exception e) {
-             ApiException apiException = new ApiException(e.getMessage(), HttpStatus.BAD_REQUEST);
-             return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
+             ApiException apiException = new ApiException(e.getMessage(), HttpStatus.NOT_FOUND);
+             return new ResponseEntity<>(apiException, HttpStatus.NOT_FOUND);
          }
      }
  
@@ -58,8 +63,8 @@ package com.extraidados.challenge.controller;
              Documents document = documentsService.findById(document_id, token);
              return ResponseEntity.ok(document);
          } catch (Exception e) {
-             ApiException apiException = new ApiException(e.getMessage(), HttpStatus.BAD_REQUEST);
-             return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
+             ApiException apiException = new ApiException(e.getMessage(), HttpStatus.NOT_FOUND);
+             return new ResponseEntity<>(apiException, HttpStatus.NOT_FOUND);
          }
      }
  

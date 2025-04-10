@@ -5,8 +5,11 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.extraidados.challenge.entity.Documents;
 import com.extraidados.challenge.exception.MessageException;
 import com.extraidados.challenge.model.Base64Dto;
@@ -44,7 +47,8 @@ public class DocumentsService {
 
     public Documents createDocument(String classification, MultipartFile file, String token) {
         validateToken(token);
-    
+
+        
         Documents documents = new Documents();
         //extrairnome do file
         String path = "C:\\Users\\carva\\OneDrive\\Área de Trabalho\\DESAFIO EXTRAIDADOS\\challenge\\" + file.getOriginalFilename();
@@ -60,7 +64,6 @@ public class DocumentsService {
         
         String extraction = "Extração realizada";
         documents.setExtraction(extraction);
-        
         String fileName = file.getOriginalFilename();
         documents.setFileName(fileName);
         
@@ -68,8 +71,8 @@ public class DocumentsService {
         if (fileName != null && fileName.contains(".")) {
             extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
         }
+
         documents.setExtension(extension);
-    
         Documents savedDocument = documentRepository.save(documents);
         System.out.println(documents.toString());
         fileTreatmentService.saveDocuments(savedDocument,file);
