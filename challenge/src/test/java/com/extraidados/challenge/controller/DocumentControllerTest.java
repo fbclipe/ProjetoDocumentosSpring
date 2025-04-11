@@ -276,4 +276,213 @@ public class DocumentControllerTest {
         String responseBody = finalresponse.getResponse().getContentAsString();
         System.out.println("Resposta recebida: " + responseBody);
     }
+
+    @Test
+    @DisplayName("Deve listar nenhum documento")
+    void mustNotListAllDocumentsFromDatabase () throws Exception {
+        String userJson = "{\"username\": \"testedoc\",\"password\": \"testedoc\"}";
+
+        MvcResult result = mockMvc.perform(post("/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(userJson))
+        .andExpect(status().isOk())
+        .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        String token = objectMapper.readTree(response).get("token").asText();
+        documentRepository.deleteAll();
+
+        MvcResult finalresponse = mockMvc.perform(get("/documents/findall")
+        .header("Authorization", token)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound())
+        .andReturn();
+
+        String responseBody = finalresponse.getResponse().getContentAsString();
+        System.out.println("Resposta recebida: " + responseBody);
+    }
+
+    @Test
+    @DisplayName("Não deve encontrar o documento pelo id passado")
+    void mustNotFindDocumentByIdFromDatabase () throws Exception {
+        String userJson = "{\"username\": \"testedoc\",\"password\": \"testedoc\"}";
+
+        MvcResult result = mockMvc.perform(post("/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(userJson))
+        .andExpect(status().isOk())
+        .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        String token = objectMapper.readTree(response).get("token").asText();
+
+        documentRepository.deleteById((long) 1);
+
+        MvcResult finalresponse = mockMvc.perform(get("/documents/id/1")
+        .header("Authorization", token)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound())
+        .andReturn(); 
+
+        String responseBody = finalresponse.getResponse().getContentAsString();
+        System.out.println("Resposta recebida: " + responseBody);
+    }
+
+    @Test //ta dando badrequest mas nao retorna mensagem de erro
+    @DisplayName("Deve criar um documento com sucesso")
+    void mustNotCreateDocumentInDatabase () throws Exception {
+    String userJson = "{\"username\": \"testedoc\",\"password\": \"testedoc\"}";
+    MvcResult result = mockMvc.perform(post("/auth/login")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(userJson))
+        .andExpect(status().isOk())
+        .andReturn();
+
+    String response = result.getResponse().getContentAsString();
+    ObjectMapper objectMapper = new ObjectMapper();
+    String token = objectMapper.readTree(response).get("token").asText();
+
+    MockMultipartFile mockFile = new MockMultipartFile(
+        "file",
+        "document.txt",
+        MediaType.TEXT_PLAIN_VALUE,
+        "conteúdo do arquivo".getBytes());
+
+    MvcResult finalResponse = mockMvc.perform(multipart("/documents/create")
+            .file(mockFile)
+            .header("Authorization", token)
+            .param("classification", "")
+            .contentType(MediaType.MULTIPART_FORM_DATA))
+        .andExpect(status().isBadRequest())
+        .andReturn();
+
+    String responseBody = finalResponse.getResponse().getContentAsString();
+    System.out.println("Resposta recebida: " + responseBody);
+
+          
+    }
+
+    @Test
+    @DisplayName("Deve deletar um documento pelo id informado")
+    void mustNotDeleteDocumentById () throws Exception {
+        String userJson = "{\"username\": \"testedoc\",\"password\": \"testedoc\"}";
+        documentRepository.deleteAll();
+        MvcResult result = mockMvc.perform(post("/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(userJson))
+        .andExpect(status().isOk())
+        .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        String token = objectMapper.readTree(response).get("token").asText();
+
+        MvcResult finalresponse = mockMvc.perform(delete("/documents/id/1")
+        .header("Authorization", token))
+        .andExpect(status().isBadRequest())
+        .andReturn();
+
+        String responseBody = finalresponse.getResponse().getContentAsString();
+        System.out.println("Resposta recebida: " + responseBody);
+    }
+
+    @Test
+    @DisplayName("Deve transformar o arquivo em String Base64")
+    void mustNotTransformFromFileToBase64 () throws Exception {
+        String userJson = "{\"username\": \"testedoc\",\"password\": \"testedoc\"}";
+        documentRepository.deleteAll();
+        MvcResult result = mockMvc.perform(post("/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(userJson))
+        .andExpect(status().isOk())
+        .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        String token = objectMapper.readTree(response).get("token").asText();
+
+        MvcResult finalresponse = mockMvc.perform(post("/documents/base64/1")
+        .header("Authorization", token)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest())
+        .andReturn();
+
+        String responseBody = finalresponse.getResponse().getContentAsString();
+        System.out.println("Resposta recebida: " + responseBody);
+    }
+
+    @Test
+    @DisplayName("Deve encontrar os documentos cadastrados na data especificada e retorna-lo")
+    void mustNotFindDocumentByDate () throws Exception {
+        String userJson = "{\"username\": \"testedoc\",\"password\": \"testedoc\"}";
+
+        MvcResult result = mockMvc.perform(post("/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(userJson))
+        .andExpect(status().isOk())
+        .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        String token = objectMapper.readTree(response).get("token").asText();
+
+        String today = LocalDate.now().plusDays(1).toString();
+       MvcResult finalresponse =  mockMvc.perform(get("/documents/findbydate")
+        .param("date" , today)
+        .header("Authorization", token)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest())
+        .andReturn();
+
+        String responseBody = finalresponse.getResponse().getContentAsString();
+        System.out.println("Resposta recebida: " + responseBody);
+    }
+
+    @Test
+    @DisplayName("Deve receber duas datas e procurar documentos cadastrados durante essas datas")
+    void mustNotFindDocumentBetweenTwoDates () throws Exception {
+        String userJson = "{\"username\": \"testedoc\",\"password\": \"testedoc\"}";
+
+        MvcResult result = mockMvc.perform(post("/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(userJson))
+        .andExpect(status().isOk())
+        .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        String token = objectMapper.readTree(response).get("token").asText();
+
+        String today = LocalDate.now().plusDays(1).toString();
+        String yesterday = LocalDate.now().minusDays(1).toString();
+
+        Documents doc = new Documents();
+        doc.setClassification("foto");
+        doc.setFileName("fototeste");
+        doc.setPath("/path/to/document");
+        doc.setDate(LocalDate.now().minusDays(1));
+        doc.setContent("conteudo do arquivo");
+        doc.setExtension("extension");
+        doc.setExtraction(("Extraido com sucesso"));
+        documentRepository.save(doc);
+
+        MvcResult finalresponse = mockMvc.perform(get("/documents/findbydatebetween")
+        .param("begin", yesterday)
+        .param("end", today)
+        .header("Authorization", token)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest())
+        .andReturn();
+
+        String responseBody = finalresponse.getResponse().getContentAsString();
+        System.out.println("Resposta recebida: " + responseBody);
+    }
 }
