@@ -73,7 +73,7 @@ package com.extraidados.challenge.controller;
          try {
              Documents response = documentsService.createDocument(classification, file, token);
              return ResponseEntity.status(HttpStatus.CREATED).body(response);
-         } catch (Exception e) {
+         } catch (IllegalArgumentException e) {
              ApiException apiException = new ApiException(e.getMessage(), HttpStatus.BAD_REQUEST);
              return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
          }

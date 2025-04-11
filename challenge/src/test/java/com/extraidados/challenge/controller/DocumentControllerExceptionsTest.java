@@ -126,33 +126,34 @@ public class DocumentControllerExceptionsTest {
     @Test //ta dando badrequest mas nao retorna mensagem de erro
     @DisplayName("Deve criar um documento com sucesso")
     void mustNotCreateDocumentInDatabase () throws Exception {
-        String userJson = "{\"username\": \"testedoc\",\"password\": \"testedoc\"}";
-
-        MvcResult result = mockMvc.perform(post("/auth/login")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(userJson))
+    String userJson = "{\"username\": \"testedoc\",\"password\": \"testedoc\"}";
+    MvcResult result = mockMvc.perform(post("/auth/login")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(userJson))
         .andExpect(status().isOk())
         .andReturn();
 
-        String response = result.getResponse().getContentAsString();
-        
-        ObjectMapper objectMapper = new ObjectMapper();
-        String token = objectMapper.readTree(response).get("token").asText();
-
-
+    String response = result.getResponse().getContentAsString();
+    ObjectMapper objectMapper = new ObjectMapper();
+    String token = objectMapper.readTree(response).get("token").asText();
 
     MockMultipartFile mockFile = new MockMultipartFile(
         "file",
         "document.txt",
         MediaType.TEXT_PLAIN_VALUE,
         "conteúdo do arquivo".getBytes());
-    
-    mockMvc.perform(multipart("/documents/create")
+
+    MvcResult finalResponse = mockMvc.perform(multipart("/documents/create")
             .file(mockFile)
             .header("Authorization", token)
+            .param("classification", "")
             .contentType(MediaType.MULTIPART_FORM_DATA))
         .andExpect(status().isBadRequest())
         .andReturn();
+
+    String responseBody = finalResponse.getResponse().getContentAsString();
+    System.out.println("Resposta recebida: " + responseBody);
+
           
     }
 

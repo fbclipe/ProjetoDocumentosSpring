@@ -67,6 +67,10 @@ public class DocumentsService {
         String fileName = file.getOriginalFilename();
         documents.setFileName(fileName);
         
+        if (classification == null || classification.isBlank()) {
+            throw new IllegalArgumentException("empty classification.");
+        }
+
         String extension = "";
         if (fileName != null && fileName.contains(".")) {
             extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
