@@ -1,12 +1,12 @@
 package com.extraidados.challenge.service;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Base64;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,29 +15,30 @@ import com.extraidados.challenge.model.Base64Dto;
 
 @Service
 public class FileTreatmentService {
-  
 
-    private final String fileBasePath = "C:\\Users\\carva\\OneDrive\\Área de Trabalho\\DESAFIO EXTRAIDADOS\\challenge\\challenge\\arquivos\\";
+    @Value("${file.upload-dir:uploads}")
+    private String fileBasePath;
+
+    private Path uploadFolder() {
+        return Paths.get(fileBasePath).toAbsolutePath().normalize();
+    }
 
     public void saveDocuments(Documents documents, MultipartFile file) {
         try {
-            File folder = new File(fileBasePath);
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-            Path destination = Paths.get(fileBasePath, file.getOriginalFilename()).normalize();
+            Path folder = uploadFolder();
+            Files.createDirectories(folder);
+            Path destination = folder.resolve(file.getOriginalFilename()).normalize();
             Files.write(destination, file.getBytes(), StandardOpenOption.CREATE);
-            documents.setPath(destination.toAbsolutePath().toString());
+            documents.setPath(destination.toString());
         } catch (IOException e) {
             throw new RuntimeException("Erro ao salvar o arquivo: " + e.getMessage(), e);
         }
     }
 
     public Base64Dto encodetoBase64(String fileName, String classification) {
-        String filePath = fileBasePath + fileName;
-        File file = new File(filePath);
+        Path filePath = uploadFolder().resolve(fileName).normalize();
         try {
-            byte[] encodedBytes = Base64.getEncoder().encode(Files.readAllBytes(file.toPath()));
+            byte[] encodedBytes = Base64.getEncoder().encode(Files.readAllBytes(filePath));
             Base64Dto base64Dto = new Base64Dto();
             base64Dto.setOriginalName(fileName);
             base64Dto.setType(classification);
