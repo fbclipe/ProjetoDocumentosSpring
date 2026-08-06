@@ -49,15 +49,29 @@ Crie o banco:
 CREATE DATABASE document;
 ```
 
-Ajuste as credenciais em `challenge/src/main/resources/application.properties` e suba a aplicação:
+Informe as credenciais por variáveis de ambiente e suba a aplicação:
 
 ```bash
 cd challenge
+export DB_PASSWORD=sua_senha
 mvn spring-boot:run
 ```
 
 A API sobe em `http://localhost:8080`. O schema é criado automaticamente pelo Hibernate na
 primeira execução.
+
+Variáveis disponíveis, todas com valor padrão exceto a senha:
+
+| Variável | Padrão | Descrição |
+| --- | --- | --- |
+| `DB_HOST` | `localhost` | Host do PostgreSQL |
+| `DB_PORT` | `5432` | Porta do PostgreSQL |
+| `DB_NAME` | `document` | Nome do banco |
+| `DB_USERNAME` | `postgres` | Usuário do banco |
+| `DB_PASSWORD` | — | Senha do banco |
+
+O diretório de upload é configurável por `file.upload-dir` no `application.properties` e usa
+`uploads/`, relativo à raiz da aplicação, quando não informado.
 
 ## Documentação da API
 
