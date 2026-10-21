@@ -15,13 +15,16 @@ package com.extraidados.challenge.controller;
  import org.springframework.http.ResponseEntity;
  import org.springframework.web.bind.annotation.*;
  import org.springframework.web.multipart.MultipartFile;
- 
- import java.time.LocalDate;
+
+ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
+import java.time.LocalDate;
  import java.util.List;
  
  
  @RestController
  @RequestMapping("/documents")
+ @SecurityRequirement(name = "token")
  public class DocumentController {
  
      @Autowired
